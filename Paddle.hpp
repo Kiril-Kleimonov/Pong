@@ -14,13 +14,16 @@ public:
 
     void draw() const;
 
+    float get_x() const { return _x; }
+    float get_y() const { return _y; }
+
 private:
     sf::RenderWindow* _window;
     sf::RectangleShape _rectangle;
 
-    int _x;
-    int _y;
-    int _player_id;
+    float _x;
+    float _y;
+    float _player_id;
 };
 
 

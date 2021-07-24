@@ -44,22 +44,22 @@ void Paddle::update(float time)
     {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) 
         {
-            change_position(-time * 0.4);
+            change_position(-time * 0.5);
         }
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
         {
-            change_position(time * 0.4);
+            change_position(time * 0.5);
         }
     }
     else 
     {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
         {
-            change_position(-time * 0.3);
+            change_position(-time * 0.5);
         }
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
         {
-            change_position(time * 0.3);
+            change_position(time * 0.5);
         }
     }
 }
