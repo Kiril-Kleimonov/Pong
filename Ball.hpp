@@ -2,24 +2,26 @@
 #define BALL_HPP
 
 #include <SFML/Graphics.hpp>
+#include <SFML/System/Vector2.hpp>
+#include "Paddle.hpp"
+
 
 class Ball
 {
 public:
     Ball(sf::RenderWindow*);
 
-    void change_position(float, float);
-    void update(float);
+    void collision_wall();
+    void collision_paddle(const Paddle&, const Paddle&);
+    void out_borders();
+    void update(float, const Paddle&, const Paddle&);
+
     void draw() const;
 
 private:
     sf::RenderWindow* _window;
-    sf::CircleShape _ball_shape;
-
-    float _x;
-    float _y;
-    float _travel_angle;
-    float _r;
+    sf::CircleShape _shape;
+    sf::Vector2f _direction;
 };
 
 #endif
