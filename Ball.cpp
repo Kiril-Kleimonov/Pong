@@ -6,7 +6,7 @@
 Ball::Ball(sf::RenderWindow* window)
 {
     _window = window;
-    _direction.x = -0.3f;
+    _direction.x = 0.3f;
     _direction.y = 0.3f;
 
     _shape.setRadius(10);
@@ -36,6 +36,9 @@ void Ball::collision_paddle(const Paddle &first, const Paddle &second)
     if (cross >= first.get_y() - 50 && cross <= first.get_y() + 50)
     {
         _direction.x *= -1.f;
+        
+        _direction.x *= 1.1;
+        _direction.y *= 1.1;
     }
     else
     {
@@ -47,6 +50,9 @@ void Ball::collision_paddle(const Paddle &first, const Paddle &second)
         if (cross >= second.get_y() - 50 && cross <= second.get_y() + 50)
         {
             _direction.x *= -1.f;
+
+            _direction.x *= 1.1;
+            _direction.y *= 1.1;
         }
     }
 }
@@ -57,6 +63,9 @@ void Ball::out_borders()
         _shape.getPosition().x >= 840)
     {
         _shape.setPosition(_window->getSize().x / 2, _window->getSize().y / 2);
+        
+        _direction.x = -0.3f;
+        _direction.y = 0.3f;
     }
 }
 
