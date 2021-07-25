@@ -2,6 +2,7 @@
 #include "Paddle.hpp"
 #include <SFML/Graphics.hpp>
 #include <cmath>
+#include <random>
 
 Ball::Ball(sf::RenderWindow* window)
 {
@@ -12,6 +13,27 @@ Ball::Ball(sf::RenderWindow* window)
     _shape.setRadius(10);
     _shape.setOrigin(10, 10);
     _shape.setPosition(window->getSize().x / 2, window->getSize().y / 2);
+}
+
+void Ball::deflection(float power = 0.2f)
+{
+    std::random_device rd;
+    std::default_random_engine eng(rd());
+
+    float min = (_direction.x + _direction.y) * power;
+    float max = (_direction.x + _direction.y) * power;
+
+    if (min > max) 
+    {
+        max *= -1.f;
+        min *= -1.f;
+    }
+
+    std::uniform_real_distribution<> distr(min, max);
+
+    float rand = distr(eng);
+    _direction.x -= rand;
+    _direction.y += rand;
 }
 
 void Ball::collision_wall()
@@ -39,6 +61,8 @@ void Ball::collision_paddle(const Paddle &first, const Paddle &second)
         
         _direction.x *= 1.1;
         _direction.y *= 1.1;
+
+        deflection();
     }
     else
     {
@@ -53,6 +77,8 @@ void Ball::collision_paddle(const Paddle &first, const Paddle &second)
 
             _direction.x *= 1.1;
             _direction.y *= 1.1;
+
+            deflection();
         }
     }
 }
@@ -64,8 +90,11 @@ void Ball::out_borders()
     {
         _shape.setPosition(_window->getSize().x / 2, _window->getSize().y / 2);
         
-        _direction.x = -0.3f;
-        _direction.y = 0.3f;
+        auto speed = (std::abs(_direction.x) + std::abs(_direction.y)) / 0.6f;
+        _direction.x /= speed;
+        _direction.y /= speed;
+
+        deflection(2);
     }
 }
 

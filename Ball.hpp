@@ -10,7 +10,7 @@ class Ball
 {
 public:
     Ball(sf::RenderWindow*);
-
+    void deflection(float);
     void collision_wall();
     void collision_paddle(const Paddle&, const Paddle&);
     void out_borders();
