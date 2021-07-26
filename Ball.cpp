@@ -2,13 +2,14 @@
 #include "Paddle.hpp"
 #include <SFML/Graphics.hpp>
 #include <cmath>
+#include <cstdlib>
 #include <random>
 
 Ball::Ball(sf::RenderWindow* window)
 {
     _window = window;
-    _direction.x = 0.3f;
-    _direction.y = 0.3f;
+    _speed.x = 0.3f;
+    _speed.y = 0.3f;
 
     _shape.setRadius(10);
     _shape.setOrigin(10, 10);
@@ -17,23 +18,30 @@ Ball::Ball(sf::RenderWindow* window)
 
 void Ball::deflection(float power = 0.2f)
 {
+    auto abs_x = std::abs(_speed.x);
+    auto abs_y = std::abs(_speed.y);
+
+    float max = (abs_x + abs_y) * power;
+
     std::random_device rd;
     std::default_random_engine eng(rd());
-
-    float min = (_direction.x + _direction.y) * power;
-    float max = (_direction.x + _direction.y) * power;
-
-    if (min > max) 
-    {
-        max *= -1.f;
-        min *= -1.f;
-    }
-
-    std::uniform_real_distribution<> distr(min, max);
+    std::uniform_real_distribution<float> distr(max / 4.f, max);
 
     float rand = distr(eng);
-    _direction.x -= rand;
-    _direction.y += rand;
+    if (max / 8.f + max / 2.f > distr(eng)) rand *= -1;
+
+    abs_x += rand;
+    abs_y -= rand;
+
+    if (abs_y > abs_x)
+    {
+        abs_y = (abs_x + abs_y) / 2.f;
+        abs_x = abs_y;
+    }
+
+    _speed.x = _speed.x < 0 ? -abs_x : abs_x;
+    _speed.y = _speed.y < 0 ? -abs_y : abs_y;
+    
 }
 
 void Ball::collision_wall()
@@ -41,11 +49,11 @@ void Ball::collision_wall()
     if (_shape.getPosition().y <= 0 + _shape.getRadius() || 
         _shape.getPosition().y >= _window->getSize().y - _shape.getRadius())
     {
-        _direction.y *= -1.f;
+        _speed.y *= -1.f;
     }
 }
 
-void Ball::collision_paddle(const Paddle &first, const Paddle &second)
+void Ball::collision_paddle(const Paddle &first, const Paddle &second, float acceleration = 1.1f)
 {
     // from the equation of the circle                 
     // y = b -sqrt(-x * x + 2 * a * x + r * r -a * a) 
@@ -57,10 +65,10 @@ void Ball::collision_paddle(const Paddle &first, const Paddle &second)
 
     if (cross >= first.get_y() - 50 && cross <= first.get_y() + 50)
     {
-        _direction.x *= -1.f;
+        _speed.x *= _speed.x > 0 ? -1.f : 1.f;
         
-        _direction.x *= 1.1;
-        _direction.y *= 1.1;
+        _speed.x *= acceleration;
+        _speed.y *= acceleration;
 
         deflection();
     }
@@ -73,10 +81,10 @@ void Ball::collision_paddle(const Paddle &first, const Paddle &second)
 
         if (cross >= second.get_y() - 50 && cross <= second.get_y() + 50)
         {
-            _direction.x *= -1.f;
+            _speed.x *= _speed.x > 0 ? 1.f : -1.f;
 
-            _direction.x *= 1.1;
-            _direction.y *= 1.1;
+            _speed.x *= acceleration;
+            _speed.y *= acceleration;
 
             deflection();
         }
@@ -89,12 +97,12 @@ void Ball::out_borders()
         _shape.getPosition().x >= 840)
     {
         _shape.setPosition(_window->getSize().x / 2, _window->getSize().y / 2);
-        
-        auto speed = (std::abs(_direction.x) + std::abs(_direction.y)) / 0.6f;
-        _direction.x /= speed;
-        _direction.y /= speed;
 
-        deflection(2);
+        auto speed_n = (std::abs(_speed.x) + std::abs(_speed.y)) / 0.6f;
+        _speed.x /= speed_n;
+        _speed.y /= speed_n;
+
+        deflection(0.4f);
     }
 }
 
@@ -104,8 +112,8 @@ void Ball::update(float time, const Paddle &first, const Paddle &second)
     collision_wall();
     collision_paddle(first, second);
 
-    _shape.setPosition(_shape.getPosition().x + _direction.x * time, 
-                       _shape.getPosition().y + _direction.y * time);
+    _shape.setPosition(_shape.getPosition().x + _speed.x * time, 
+                       _shape.getPosition().y + _speed.y * time);
     
 }
 

@@ -12,7 +12,7 @@ public:
     Ball(sf::RenderWindow*);
     void deflection(float);
     void collision_wall();
-    void collision_paddle(const Paddle&, const Paddle&);
+    void collision_paddle(const Paddle&, const Paddle&, float);
     void out_borders();
     void update(float, const Paddle&, const Paddle&);
 
@@ -21,7 +21,7 @@ public:
 private:
     sf::RenderWindow* _window;
     sf::CircleShape _shape;
-    sf::Vector2f _direction;
+    sf::Vector2f _speed;
 };
 
 #endif
